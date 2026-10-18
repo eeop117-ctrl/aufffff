@@ -21,6 +21,10 @@ jobs:
             mingw-w64-x86_64-pixman
             mingw-w64-x86_64-SDL2
             mingw-w64-x86_64-openssl
+            mingw-w64-x86_64-python
+            mingw-w64-x86_64-python-pip
+            mingw-w64-x86_64-python-setuptools
+            mingw-w64-x86_64-python-distlib
 
       - name: Clone devos50/qemu-ios (branch ipod_touch_2g)
         run: git clone --depth 1 -b ipod_touch_2g https://github.com/devos50/qemu-ios.git
@@ -31,7 +35,7 @@ jobs:
           cd qemu-ios
           mkdir build
           cd build
-          ../configure --enable-sdl --disable-cocoa --target-list=arm-softmmu \
+          ../configure --python=/mingw64/bin/python3 --enable-sdl --disable-cocoa --target-list=arm-softmmu \
             --disable-capstone --disable-slirp --disable-pie \
             --extra-cflags=-I/mingw64/include/openssl \
             --extra-ldflags='-L/mingw64/lib -lcrypto' \
