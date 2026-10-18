@@ -1,0 +1,1 @@
+qemu\qemu-system-arm.exe -M iPod-Touch,bootrom="ipod_2g_files/bootrom_240_4",nand="ipod_2g_files/nand",nor="ipod_2g_files/nor_n72ap.bin" -serial mon:stdio -cpu max -m 2G -d unimp
