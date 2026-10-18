@@ -25,6 +25,7 @@ jobs:
             mingw-w64-x86_64-python-pip
             mingw-w64-x86_64-python-setuptools
             mingw-w64-x86_64-python-distlib
+            mingw-w64-x86_64-meson
 
       - name: Clone devos50/qemu-ios (branch ipod_touch_2g)
         run: git clone --depth 1 -b ipod_touch_2g https://github.com/devos50/qemu-ios.git
