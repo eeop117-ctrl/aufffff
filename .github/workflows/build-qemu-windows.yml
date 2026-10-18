@@ -1,0 +1,55 @@
+name: Build QEMU-iOS (iPod touch 2G) for Windows
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            base-devel git python python-setuptools ninja
+            mingw-w64-x86_64-toolchain
+            mingw-w64-x86_64-glib2
+            mingw-w64-x86_64-pixman
+            mingw-w64-x86_64-SDL2
+            mingw-w64-x86_64-openssl
+
+      - name: Clone devos50/qemu-ios (branch ipod_touch_2g)
+        run: git clone --depth 1 -b ipod_touch_2g https://github.com/devos50/qemu-ios.git
+
+      # Команды configure взяты из RUNNING.md репозитория (раздел Windows / MINGW64)
+      - name: Configure and build
+        run: |
+          cd qemu-ios
+          mkdir build
+          cd build
+          ../configure --enable-sdl --disable-cocoa --target-list=arm-softmmu \
+            --disable-capstone --disable-slirp --disable-pie \
+            --extra-cflags=-I/mingw64/include/openssl \
+            --extra-ldflags='-L/mingw64/lib -lcrypto' \
+            --disable-stack-protector --disable-werror
+          make -j$(nproc)
+
+      - name: Package exe + DLLs + source files for inspection
+        run: |
+          mkdir -p out/qemu out/src
+          EXE=$(find qemu-ios/build -name qemu-system-arm.exe | head -n 1)
+          echo "Found: $EXE"
+          cp "$EXE" out/qemu/
+          ldd "$EXE" | grep -i /mingw64/ | awk '{print $3}' | sort -u | xargs -I{} cp {} out/qemu/
+          cp qemu-ios/hw/arm/ipod_touch_*.c out/src/ || true
+          cp qemu-ios/include/hw/arm/ipod_touch_*.h out/src/ || true
+          ls -la out/qemu out/src
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qemu-ios-windows
+          path: out
